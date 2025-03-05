@@ -98,7 +98,7 @@ Sub FindTopEmployee()
             Set branchDict(branch)(employee) = CreateObject("Scripting.Dictionary")
             Set branchDict(branch)(employee)("Daily") = CreateObject("Scripting.Dictionary")
             Set branchDict(branch)(employee)("Hourly") = CreateObject("Scripting.Dictionary")
-            branchDict(branch)(employee)("Total") = 0
+            branchDict(branch)(employee)("Total") = 0 ' SUGGEST RENAME TO: Monthly or monthlyTotal
         End If
         
         branchDict(branch)(employee)("Total") = branchDict(branch)(employee)("Total") + customers
