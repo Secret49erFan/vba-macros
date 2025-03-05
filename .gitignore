@@ -1,0 +1,33 @@
+# Ignore Excel temporary files
+*.xlb
+~$*
+
+# Ignore binary Excel files
+*.xls
+*.xlsx
+*.xlsb
+
+# Ignore compiled add-ins
+*.xla
+*.xlam
+
+# Ignore VBA editor temporary files
+*.exd
+
+# Ignore custom backup files (if any)
+*.bak
+
+# Ignore other temporary system files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Ignore hidden system files
+*.lnk
+desktop.ini
+
+# Allow important VBA modules or macro-enabled files
+!*.xlsm
+!*.bas
+!*.cls
+!*.frm
