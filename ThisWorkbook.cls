@@ -80,7 +80,7 @@ Sub FindTopEmployee()
     Set dataRange = dataWs.Range("A2:H" & lastRow) ' Adjust columns as needed
     
     ' Initialize dictionaries
-    Set branchDict = CreateObject("Scripting.Dictionary")
+    Set branchDict = CreateObject("Scripting.Dictionary") ' SUGGEST RENAMING TO: DISTRICT
     
     ' Loop through the data
     For Each cell In dataRange.Columns(3).Cells ' Column 3 (C): Branch Number
