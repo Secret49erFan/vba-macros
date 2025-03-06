@@ -52,11 +52,11 @@ Sub FindTopEmployee()
     Dim lastRow As Long
     Dim dataRange As Range
     Dim employeeDict As Object
-    Dim branchDict As Object
+    Dim rno_district As Object
     Dim branch As Variant
     Dim employee As Variant
-    Dim dateKey As Variant
-    Dim hourKey As Variant
+    Dim totalByDate As Variant
+    Dim totalByHour As Variant
     Dim maxCustomers As Long
     Dim topEmployee As String
     Dim customers As Long
@@ -80,39 +80,39 @@ Sub FindTopEmployee()
     Set dataRange = dataWs.Range("A2:H" & lastRow) ' Adjust columns as needed
     
     ' Initialize dictionaries
-    Set branchDict = CreateObject("Scripting.Dictionary") ' SUGGEST RENAMING TO: DISTRICT
+    Set rno_district = CreateObject("Scripting.Dictionary")
     
     ' Loop through the data
     For Each cell In dataRange.Columns(3).Cells ' Column 3 (C): Branch Number
         branch = CStr(cell.Value) ' Treat as text
         employee = CStr(cell.Offset(0, 4).Value) ' Treat as text (Column 7, G: Employee Name)
-        dateKey = CStr(cell.Offset(0, 2).Value) ' Treat as text (Column 5, E: Date)
-        hourKey = CStr(cell.Offset(0, 3).Value) ' Treat as text (Column 6, F: Hour)
+        totalByDate = CStr(cell.Offset(0, 2).Value) ' Treat as text (Column 5, E: Date)
+        totalByHour = CStr(cell.Offset(0, 3).Value) ' Treat as text (Column 6, F: Hour)
         customers = Val(cell.Offset(0, 5).Value) ' Treat as number (Column 8, H: Customers)
         
-        If Not branchDict.exists(branch) Then
-            Set branchDict(branch) = CreateObject("Scripting.Dictionary")
+        If Not rno_district.exists(branch) Then
+            Set rno_district(branch) = CreateObject("Scripting.Dictionary")
         End If
         
-        If Not branchDict(branch).exists(employee) Then
-            Set branchDict(branch)(employee) = CreateObject("Scripting.Dictionary")
-            Set branchDict(branch)(employee)("Daily") = CreateObject("Scripting.Dictionary")
-            Set branchDict(branch)(employee)("Hourly") = CreateObject("Scripting.Dictionary")
-            branchDict(branch)(employee)("Total") = 0 ' SUGGEST RENAME TO: Monthly or monthlyTotal
+        If Not rno_district(branch).exists(employee) Then
+            Set rno_district(branch)(employee) = CreateObject("Scripting.Dictionary")
+            Set rno_district(branch)(employee)("DailyTotals") = CreateObject("Scripting.Dictionary")
+            Set rno_district(branch)(employee)("HourlyTotals") = CreateObject("Scripting.Dictionary")
+            rno_district(branch)(employee)("Total") = 0 ' SUGGEST RENAME TO: Monthly or monthlyTotal
         End If
         
-        branchDict(branch)(employee)("Total") = branchDict(branch)(employee)("Total") + customers
+    rno_district(branch)(employee)("Total") = rno_district(branch)(employee)("Total") + customers
         
-        If Not branchDict(branch)(employee)("Daily").exists(dateKey) Then
-            branchDict(branch)(employee)("Daily")(dateKey) = 0
+        If Not rno_district(branch)(employee)("DailyTotals").exists(totalByDate) Then
+            rno_district(branch)(employee)("DailyTotals")(totalByDate) = 0
         End If
         
-        If Not branchDict(branch)(employee)("Hourly").exists(hourKey & dateKey) Then
-            branchDict(branch)(employee)("Hourly")(hourKey & dateKey) = 0
+        If Not rno_district(branch)(employee)("HourlyTotals").exists(totalByHour & totalByDate) Then
+            rno_district(branch)(employee)("HourlyTotals")(totalByHour & totalByDate) = 0
         End If
         
-        branchDict(branch)(employee)("Daily")(dateKey) = branchDict(branch)(employee)("Daily")(dateKey) + customers
-        branchDict(branch)(employee)("Hourly")(hourKey & dateKey) = branchDict(branch)(employee)("Hourly")(hourKey & dateKey) + customers
+    rno_district(branch)(employee)("DailyTotals")(totalByDate) = rno_district(branch)(employee)("DailyTotals")(totalByDate) + customers
+    rno_district(branch)(employee)("HourlyTotals")(totalByHour & totalByDate) = rno_district(branch)(employee)("HourlyTotals")(totalByHour & totalByDate) + customers
     Next cell
     
     ' Check if the result sheet exists, delete if it does
@@ -142,33 +142,33 @@ Sub FindTopEmployee()
     Dim row As Long
     row = 2
     
-    For Each branch In branchDict
-        For Each employee In branchDict(branch)
+    For Each branch In rno_district
+        For Each employee In rno_district(branch)
             ws.Cells(row, 1).Value = branch
             ws.Cells(row, 2).Value = employee
-            ws.Cells(row, 3).Value = branchDict(branch)(employee)("Total")
+            ws.Cells(row, 3).Value = rno_district(branch)(employee)("Total")
             
             ' Find the most customers in one day
             maxCustomers = 0
             maxDate = ""
-            For Each dateKey In branchDict(branch)(employee)("Daily")
-                If branchDict(branch)(employee)("Daily")(dateKey) > maxCustomers Then
-                    maxCustomers = branchDict(branch)(employee)("Daily")(dateKey)
-                    maxDate = dateKey
+            For Each totalByDate In rno_district(branch)(employee)("DailyTotals")
+                If rno_district(branch)(employee)("DailyTotals")(totalByDate) > maxCustomers Then
+                    maxCustomers = rno_district(branch)(employee)("DailyTotals")(totalByDate)
+                    maxDate = totalByDate
                 End If
-            Next dateKey
+            Next totalByDate
             ws.Cells(row, 4).Value = maxCustomers
             ws.Cells(row, 5).Value = maxDate
             
             ' Find the most customers in one hour and date
             maxCustomers = 0
             maxHourDate = ""
-            For Each hourKey In branchDict(branch)(employee)("Hourly")
-                If branchDict(branch)(employee)("Hourly")(hourKey) > maxCustomers Then
-                    maxCustomers = branchDict(branch)(employee)("Hourly")(hourKey)
-                    maxHourDate = hourKey
+            For Each totalByHour In rno_district(branch)(employee)("HourlyTotals")
+                If rno_district(branch)(employee)("HourlyTotals")(totalByHour) > maxCustomers Then
+                    maxCustomers = rno_district(branch)(employee)("HourlyTotals")(totalByHour)
+                    maxHourDate = totalByHour
                 End If
-            Next hourKey
+            Next totalByHour
             ws.Cells(row, 6).Value = maxCustomers
             ws.Cells(row, 7).Value = Left(maxHourDate, Len(maxHourDate) - Len(maxDate))
             ws.Cells(row, 8).Value = Right(maxHourDate, Len(maxDate))
