@@ -8,9 +8,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 
-Sub CrunchWUReport()
+Sub WUReport()
 '
-' Parse data from the <INSERT REPORT NAME HERE>.
+' Parse data from the "Western Union Money Transfer Report."
 ' Display seperate totals for send and rec.
 ' Count the number of each.
 '
@@ -24,7 +24,7 @@ Sub CrunchWUReport()
   Dim ws As Worksheet
   Set ws = ActiveSheet
     
-  ' Initiate the vars the first and last rows of data.
+  ' Initiate the vars for first and last rows of data.
   Dim r As Long, last As Long
     
   ' Initiate the vars for dictionary, type, and amount.
@@ -34,14 +34,14 @@ Sub CrunchWUReport()
   Set d = CreateObject("Scripting.Dictionary")
     
   ' Find the last row of the data.
-  last = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+  last = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
     
   ' Loops through all available rows.
-  For r = 2 To last
-    ' Type of item from column B.
+  For r = 5 To last
+    ' Type of item from column with label.
     label = ws.Cells(r, "B").Value
         
-    ' Dollar amount from column F.
+    ' Dollar amount from column with amount.
     amt = ws.Cells(r, "F").Value
         
     ' Makes sure label is not blank; checks if it already exists; if not, add it.
@@ -52,15 +52,133 @@ Sub CrunchWUReport()
         d.Add label, amt
       End If
     End If
-    Debug.Print "WU Type: " & label
-    Debug.Print "Dollar Amount: " & amt
-    Debug.Print "---------------"
-    Next r
+  Next r
+  
+  'Build the MsgBox
+  Dim summary As String
+  Dim k As Variant
+  
+  summary = "Unique labels: " & d.Count & vbNewLine & vbNewLine
+  
+  For Each k In d.Keys
+    summary = summary & k & ":  " & FormatCurrency(d(k)) & vbNewLine
+  Next k
+  
+  MsgBox summary, vbInformation, "WU Totals"
+End Sub
+Sub MiscReport()
+'
+' Parse data from the "Western Union Money Transfer Report."
+' Display seperate totals for send and rec.
+' Count the number of each.
+'
+'
+' Save the personal workbook
+' Future features:
+' * Thresholds
+' * Frequencies
+''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Initiate the data worksheet and set as the currently active tab.
+  Dim ws As Worksheet
+  Set ws = ActiveSheet
     
-    Debug.Print "Unique items: "; d.Count
-    Dim k As Variant
-    For Each k In d.Keys
-        Debug.Print k, FormatCurrency(d(k))
-    Next k
+  ' Initiate the vars for first and last rows of data.
+  Dim r As Long, last As Long
     
+  ' Initiate the vars for dictionary, type, and amount.
+  Dim d As Object, label As String, amt As Double
+    
+  ' Creat dictionary to hold totals.
+  Set d = CreateObject("Scripting.Dictionary")
+    
+  ' Find the last row of the data.
+  last = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+  ' Loops through all available rows.
+  For r = 5 To last
+    ' Type of item from column with label.
+    label = ws.Cells(r, "C").Value
+        
+    ' Dollar amount from column with amount.
+    amt = ws.Cells(r, "D").Value
+        
+    ' Makes sure label is not blank; checks if it already exists; if not, add it.
+    If label <> "" Then
+      If d.Exists(label) Then
+        d(label) = d(label) + amt
+      Else
+        d.Add label, amt
+      End If
+    End If
+  Next r
+  
+  'Build the MsgBox
+  Dim summary As String
+  Dim k As Variant
+  
+  summary = "Unique labels: " & d.Count & vbNewLine & vbNewLine
+  
+  For Each k In d.Keys
+    summary = summary & k & ":  " & FormatCurrency(d(k)) & vbNewLine
+  Next k
+  
+  MsgBox summary, vbInformation, "WU Totals"
+End Sub
+Sub GenericReport()
+'
+' Parse data from the "Western Union Money Transfer Report."
+' Display seperate totals for send and rec.
+' Count the number of each.
+'
+'
+' Save the personal workbook
+' Future features:
+' * Thresholds
+' * Frequencies
+''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Initiate the data worksheet and set as the currently active tab.
+  Dim ws As Worksheet
+  Set ws = ActiveSheet
+    
+  ' Initiate the vars for first and last rows of data.
+  Dim r As Long, last As Long
+    
+  ' Initiate the vars for dictionary, type, and amount.
+  Dim d As Object, label As String, amt As Double
+    
+  ' Creat dictionary to hold totals.
+  Set d = CreateObject("Scripting.Dictionary")
+    
+  ' Find the last row of the data.
+  last = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+  ' Loops through all available rows.
+  For r = 5 To last
+    ' Type of item from column with label.
+    label = ws.Cells(r, "J").Value
+        
+    ' Dollar amount from column with amount.
+    amt = ws.Cells(r, "L").Value
+        
+    ' Makes sure label is not blank; checks if it already exists; if not, add it.
+    If label <> "" Then
+      If d.Exists(label) Then
+        d(label) = d(label) + amt
+      Else
+        d.Add label, amt
+      End If
+    End If
+  Next r
+  
+  'Build the MsgBox
+  Dim summary As String
+  Dim k As Variant
+  
+  summary = "Unique labels: " & d.Count & vbNewLine & vbNewLine
+  
+  For Each k In d.Keys
+    summary = summary & k & ":  " & FormatCurrency(d(k)) & vbNewLine
+  Next k
+  
+  MsgBox summary, vbInformation, "WU Totals"
 End Sub
